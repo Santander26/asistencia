@@ -8,10 +8,10 @@ services:
       - DB_NAME=asistencia_db
       - DB_USER=asistencia_user
       - DB_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - APP_ENV=docker
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     volumes:
       - config_data:/var/www/html/config
       - foto_data:/var/www/html/foto_perfil
@@ -31,11 +31,6 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./backups/asistencia_db.sql:/docker-entrypoint-initdb.d/asistencia.sql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
-      timeout: 20s
-      retries: 15
-      start_period: 40s
     restart: unless-stopped
 
 volumes:

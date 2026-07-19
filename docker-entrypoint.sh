@@ -57,6 +57,17 @@ if [ ! -f /var/www/html/config/access_time.json ]; then
 }' > /var/www/html/config/access_time.json
 fi
 
+# Wait for MySQL to be ready
+echo "Waiting for MySQL..."
+for i in $(seq 1 60); do
+    if mysqladmin ping -h "$DB_HOST" -u root -p"${MYSQL_ROOT_PASSWORD}" --silent 2>/dev/null; then
+        echo "MySQL is ready!"
+        break
+    fi
+    echo "Attempt $i: MySQL not ready yet, waiting 2s..."
+    sleep 2
+done
+
 # Ensure proper ownership
 chown -R www-data:www-data /var/www/html/config \
     /var/www/html/tmp \
