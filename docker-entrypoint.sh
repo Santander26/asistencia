@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 # Ensure writable config files exist (named volume starts empty)
 if [ ! -f /var/www/html/config/Conexion.php ]; then
