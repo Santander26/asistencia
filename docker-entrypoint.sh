@@ -24,7 +24,7 @@ class Conexion
                 self::\$instancia->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 self::\$instancia->exec(\"set names utf8\");
             } catch (PDOException \$e) {
-                die(\"Error Conexion BD: \" . \$e->getMessage());
+                die(\"Error de conexi\u00f3n a la base de datos. Contacte al administrador.\");
             }
         }
         return self::\$instancia;
@@ -61,6 +61,7 @@ fi
 chown -R www-data:www-data /var/www/html/config \
     /var/www/html/tmp \
     /var/www/html/foto_perfil \
+    /var/www/html/adjuntos_justificaciones \
     /var/www/html/backups
 
 exec "$@"

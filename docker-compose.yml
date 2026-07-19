@@ -15,11 +15,12 @@ services:
     volumes:
       - config_data:/var/www/html/config
       - foto_data:/var/www/html/foto_perfil
+      - adjuntos_data:/var/www/html/adjuntos_justificaciones
       - tmp_data:/var/www/html/tmp
     restart: unless-stopped
 
   db:
-    image: mysql:8.0.30
+    image: mysql:8.0
     ports:
       - "3306:3306"
     environment:
@@ -40,4 +41,5 @@ volumes:
   mysql_data:
   config_data:
   foto_data:
+  adjuntos_data:
   tmp_data:

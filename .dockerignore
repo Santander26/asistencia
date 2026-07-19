@@ -1,6 +1,15 @@
 .git
 .gitignore
 .dockerignore
+.env
+.env.example
 node_modules
 asistencia.sql
 README.md
+*.log
+cookies_*.txt
+headers.txt
+adjuntos_justificaciones/*
+foto_perfil/*
+backups_reportes/*
+tmp/*
