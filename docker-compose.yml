@@ -1,8 +1,8 @@
 services:
   app:
     build: .
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     environment:
       - DB_HOST=db
       - DB_NAME=asistencia_db
@@ -21,8 +21,8 @@ services:
 
   db:
     image: mysql:8.0
-    ports:
-      - "3306:3306"
+    expose:
+      - "3306"
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=asistencia_db
