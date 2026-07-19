@@ -1,0 +1,9 @@
+{
+  "smtp_host": "smtp.gmail.com",
+  "smtp_port": 587,
+  "smtp_secure": "tls",
+  "smtp_username": "",
+  "smtp_password": "",
+  "from_email": "noreply@sibca.edu",
+  "from_name": "SIBCA - Sistema de Asistencia"
+}

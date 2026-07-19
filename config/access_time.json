@@ -1,0 +1,13 @@
+{
+    "dias": [
+        1,
+        2,
+        3,
+        4,
+        5
+    ],
+    "hora_inicio": 8,
+    "hora_fin": 13,
+    "habilitado": false,
+    "tiempo_inactividad": 5
+}

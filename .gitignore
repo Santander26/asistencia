@@ -1,0 +1,27 @@
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temp files
+cookies_*.txt
+headers.txt
+
+# Composer (if used)
+vendor/
+node_modules/

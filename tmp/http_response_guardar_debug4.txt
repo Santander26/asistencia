@@ -1,0 +1,1 @@
+{"started":true,"log_file":"huella_save_000000000_20260515_002110.log","message":"Proceso iniciado. Puedes consultar el log."}

@@ -1,0 +1,21 @@
+# Proteger archivos sensibles
+<FilesMatch "\.(sql|env|log|json)$">
+    Require all denied
+</FilesMatch>
+
+# Seguridad de headers
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "no-referrer-when-downgrade"
+</IfModule>
+
+# Deshabilitar listado de directorios
+Options -Indexes
+
+# Redirigir a HTTPS (descomentar en produccion)
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTPS} off
+#     RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+# </IfModule>

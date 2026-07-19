@@ -1,0 +1,113 @@
+/* =========================================
+   MODAL STYLES (Phase 3)
+   ========================================= */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(9, 14, 23, 0.7);
+    backdrop-filter: blur(4px);
+    overflow: auto;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: var(--text-main);
+}
+
+.modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: var(--bg-surface, #ffffff);
+    margin: auto;
+    border-radius: var(--border-radius-lg);
+    width: 100%;
+    max-width: 600px;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.modal.show .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+    font-size: 1.25rem;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-modal:hover {
+    color: var(--clr-red);
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+
+.modal-body .profile-avatar {
+    width: 128px;
+    height: 128px;
+    max-width: 80%;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    display: block;
+    margin: 50px auto 50px auto;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border-color);
+    background-color: rgba(0, 0, 0, 0.02);
+    border-bottom-left-radius: var(--border-radius-lg);
+    border-bottom-right-radius: var(--border-radius-lg);
+}
+
+.dark-theme .modal-footer {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-row>.input-group {
+    flex: 1;
+    margin-bottom: 0;
+}
