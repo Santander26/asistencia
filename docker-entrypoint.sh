@@ -59,9 +59,10 @@ fi
 
 # Wait for MySQL to be ready
 echo "Waiting for MySQL..."
-for i in $(seq 1 60); do
-    if mysqladmin ping -h "$DB_HOST" -u root -p"${MYSQL_ROOT_PASSWORD}" --silent 2>/dev/null; then
+for i in $(seq 1 120); do
+    if mysqladmin ping -h "$DB_HOST" -u root --silent 2>/dev/null || mysqladmin ping -h "$DB_HOST" -u root -p"${MYSQL_ROOT_PASSWORD}" --silent 2>/dev/null; then
         echo "MySQL is ready!"
+        sleep 3
         break
     fi
     echo "Attempt $i: MySQL not ready yet, waiting 2s..."
