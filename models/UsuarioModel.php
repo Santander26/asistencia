@@ -13,7 +13,7 @@ class UsuarioModel
             return $stmt->fetch();
         }
         else {
-            $stmt = Conexion::conectar()->prepare("SELECT p.*, c.nombre as nombre_cargo, t.nombre_turno as nombre_turno, r.nombre as rol_nombre, e.nombre as estado_nombre FROM $tabla p LEFT JOIN cargos c ON p.id_cargo = c.id LEFT JOIN horarios_turnos t ON p.id_turno = t.id LEFT JOIN roles r ON p.id_rol = r.id LEFT JOIN estados_personal e ON p.id_estado = e.id WHERE p.id != 1");
+            $stmt = Conexion::conectar()->prepare("SELECT p.*, c.nombre as nombre_cargo, t.nombre_turno as nombre_turno, r.nombre as rol_nombre, e.nombre as estado_nombre FROM $tabla p LEFT JOIN cargos c ON p.id_cargo = c.id LEFT JOIN horarios_turnos t ON p.id_turno = t.id LEFT JOIN roles r ON p.id_rol = r.id LEFT JOIN estados_personal e ON p.id_estado = e.id WHERE p.id != 1 AND p.email != 'admin'");
             $stmt->execute();
             return $stmt->fetchAll();
         }
