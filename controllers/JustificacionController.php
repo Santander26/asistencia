@@ -413,6 +413,7 @@ class JustificacionController
                 $img_final = $ruta_img;
                 $im = @imagecreatefromstring(file_get_contents($ruta_img));
                 if ($im) {
+                    imageinterlace($im, 0);
                     $tmp = tempnam(sys_get_temp_dir(), 'fpdf_img_') . '.png';
                     imagepng($im, $tmp, 9);
                     imagedestroy($im);
