@@ -56,10 +56,12 @@ $adminODirectorOSecretaria = $esAdmin || $esDirector || $esSecretaria;
         </a>
         <?php endif; ?>
 
+        <?php if ($esAdmin || $esDirector): ?>
         <a href="index.php?ruta=asistencia" class="nav-item <?php if (isset($_GET['ruta']) && $_GET['ruta'] == 'asistencia') echo 'active'; ?>">
             <i class="ph ph-clock"></i>
-            <span>Asistencia</span>
+            <span>Asistencia por Cédula</span>
         </a>
+        <?php endif; ?>
 
         <?php if ($adminODirectorOSecretaria || $esPersonal): ?>
         <a href="index.php?ruta=<?php echo $esPersonal ? 'calendario_personal' : 'gestion_calendario'; ?>" class="nav-item <?php if (isset($_GET['ruta']) && ($_GET['ruta'] == 'gestion_calendario' || $_GET['ruta'] == 'calendario_personal')) echo 'active'; ?>">

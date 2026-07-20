@@ -321,7 +321,8 @@ class ControladorPlantilla
                 else RbacHelper::denegar('perfil');
             }
             else if ($rutaActual == "asistencia") {
-                include "views/modules/asistencia.php";
+                if ($adminODirector) include "views/modules/asistencia.php";
+                else RbacHelper::denegar();
             }
             else if ($rutaActual == "turnos") {
                 if ($esAdmin || $esDirector) include "views/modules/turnos.php";
