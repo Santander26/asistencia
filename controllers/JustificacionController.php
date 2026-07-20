@@ -410,20 +410,13 @@ class JustificacionController
                 }
                 $pdf->SetFont('Arial', '', 9);
                 $pdf->Cell(0, 5, utf8_decode('Imagen ' . ($idx + 1) . ':'), 0, 1, 'L');
-                $ext_img = strtolower(pathinfo($ruta_img, PATHINFO_EXTENSION));
                 $img_final = $ruta_img;
-                if (in_array($ext_img, ['png', 'jpg', 'jpeg'])) {
-                    $im = @imagecreatefromstring(file_get_contents($ruta_img));
-                    if ($im) {
-                        $tmp = tempnam(sys_get_temp_dir(), 'fpdf_img_') . '.' . ($ext_img === 'png' ? 'png' : 'jpg');
-                        if ($ext_img === 'png') {
-                            imagepng($im, $tmp, 9);
-                        } else {
-                            imagejpeg($im, $tmp, 90);
-                        }
-                        imagedestroy($im);
-                        $img_final = $tmp;
-                    }
+                $im = @imagecreatefromstring(file_get_contents($ruta_img));
+                if ($im) {
+                    $tmp = tempnam(sys_get_temp_dir(), 'fpdf_img_') . '.jpg';
+                    imagejpeg($im, $tmp, 92);
+                    imagedestroy($im);
+                    $img_final = $tmp;
                 }
                 $pdf->Image($img_final, $x_imagen, null, $ancho_max);
             }
