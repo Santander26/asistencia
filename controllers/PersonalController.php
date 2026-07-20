@@ -167,7 +167,11 @@ class PersonalController
                     $password = password_hash($_POST["editarPassword"], PASSWORD_DEFAULT);
                 }
                 else {
-                    $password = $_POST["passwordActual"];
+                    $stmtHash = Conexion::conectar()->prepare("SELECT password FROM personal WHERE id = :id");
+                    $stmtHash->bindParam(":id", $_POST["idPersonal"], PDO::PARAM_INT);
+                    $stmtHash->execute();
+                    $hashRow = $stmtHash->fetch();
+                    $password = $hashRow ? $hashRow["password"] : "";
                 }
 
                 $datos = array(

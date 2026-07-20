@@ -341,7 +341,6 @@
                     <div class="input-wrapper">
                         <i class="ph ph-lock"></i>
                         <input type="password" name="editarPassword" placeholder="Escribe la nueva contrase&ntilde;a">
-                        <input type="hidden" name="passwordActual" id="passwordActual">
                     </div>
                 </div>
 
