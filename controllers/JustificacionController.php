@@ -1,7 +1,4 @@
 <?php
-if (!function_exists('utf8_decode')) {
-    function utf8_decode($s) { return mb_convert_encoding($s, 'ISO-8859-1', 'UTF-8'); }
-}
 require_once "models/JustificacionModel.php";
 
 class JustificacionController
@@ -259,7 +256,8 @@ class JustificacionController
 
     static public function ctrExportarPDF()
     {
-        if (!isset($_GET["id"])) return;
+        $oldLevel = error_reporting(error_reporting() & ~E_DEPRECATED);
+        if (!isset($_GET["id"])) { error_reporting($oldLevel); return; }
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
         require_once "helpers/RbacHelper.php";
 
@@ -267,12 +265,14 @@ class JustificacionController
         $justificacion = JustificacionModel::mdlObtenerJustificacion($id);
         if (!$justificacion) {
             echo '<script>alert("Justificación no encontrada"); window.location = "index.php?ruta=justificaciones";</script>';
+            error_reporting($oldLevel);
             return;
         }
 
         $esAdminODirectorOSecretaria = RbacHelper::soloAdminODirectorOSecretaria();
         $esPropietario = isset($_SESSION["id"]) && (int)$_SESSION["id"] === (int)$justificacion["id_personal"];
         if (!$esAdminODirectorOSecretaria && !$esPropietario) {
+            error_reporting($oldLevel);
             RbacHelper::denegar();
             return;
         }
@@ -410,8 +410,9 @@ class JustificacionController
                 }
                 $pdf->SetFont('Arial', '', 9);
                 $pdf->Cell(0, 5, utf8_decode('Imagen ' . ($idx + 1) . ':'), 0, 1, 'L');
+                $ext_img = strtolower(pathinfo($ruta_img, PATHINFO_EXTENSION));
                 $img_final = $ruta_img;
-                if ($ext === 'png') {
+                if ($ext_img === 'png') {
                     $fp = fopen($ruta_img, 'rb');
                     $header = fread($fp, 8);
                     fclose($fp);
@@ -435,6 +436,7 @@ class JustificacionController
             }
         }
 
+        error_reporting($oldLevel);
         $pdf->Output('D', 'justificacion_' . $id . '_' . date('Ymd') . '.pdf');
         exit;
     }
