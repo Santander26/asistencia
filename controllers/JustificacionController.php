@@ -1,4 +1,7 @@
 <?php
+if (!function_exists('utf8_decode')) {
+    function utf8_decode($s) { return mb_convert_encoding($s, 'ISO-8859-1', 'UTF-8'); }
+}
 require_once "models/JustificacionModel.php";
 
 class JustificacionController
@@ -407,7 +410,28 @@ class JustificacionController
                 }
                 $pdf->SetFont('Arial', '', 9);
                 $pdf->Cell(0, 5, utf8_decode('Imagen ' . ($idx + 1) . ':'), 0, 1, 'L');
-                $pdf->Image($ruta_img, $x_imagen, null, $ancho_max);
+                $img_final = $ruta_img;
+                if ($ext === 'png') {
+                    $fp = fopen($ruta_img, 'rb');
+                    $header = fread($fp, 8);
+                    fclose($fp);
+                    if ($header === "\x89PNG\r\n\x1a\n") {
+                        $fp = fopen($ruta_img, 'rb');
+                        fread($fp, 25);
+                        $interlace = ord(fread($fp, 1));
+                        fclose($fp);
+                        if ($interlace === 1) {
+                            $im = imagecreatefrompng($ruta_img);
+                            if ($im) {
+                                $tmp = tempnam(sys_get_temp_dir(), 'fpdf_noint_') . '.png';
+                                imagepng($im, $tmp, 9, PNG_NO_FILTER);
+                                imagedestroy($im);
+                                $img_final = $tmp;
+                            }
+                        }
+                    }
+                }
+                $pdf->Image($img_final, $x_imagen, null, $ancho_max);
             }
         }
 
