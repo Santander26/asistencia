@@ -16,7 +16,7 @@
 <main id="login-view" class="view-container active-view">
     <div class="login-card">
         <div class="login-header">
-            <i class="ph ph-graduation-cap logotype-icon"></i>
+           <img src="css/escudo.png" class="logotype-icon" alt="Escudo">
             <h1>SIBCA</h1>
             <p>Gestión de Asistencia</p>
         </div>
@@ -63,7 +63,6 @@
         </div>
     </div>
     <div class="login-illustration">
-        <!-- Capa decorativa (vidrio y gradientes) en CSS -->
         <div class="glass-shape shape-1"></div>
         <div class="glass-shape shape-2"></div>
         <div class="illustration-content">

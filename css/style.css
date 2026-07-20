@@ -77,6 +77,10 @@ body.dark-theme {
     font-family: 'Inter', sans-serif;
 }
 
+html {
+    overflow-x: hidden;
+}
+
 body {
     background-color: var(--bg-main);
     color: var(--text-main);
@@ -167,6 +171,17 @@ ul {
     font-size: 3.5rem;
     color: var(--clr-blue);
     margin-bottom: 0.5rem;
+}
+
+img.logotype-icon {
+    width: 5rem;
+    height: 5rem;
+    object-fit: contain;
+}
+
+.login-header .logotype-icon {
+    width: 8rem;
+    height: 8rem;
 }
 
 .login-header h1 {
@@ -367,7 +382,7 @@ ul {
 /* Ilustración lateral login */
 .login-illustration {
     flex: 1.2;
-    background: linear-gradient(135deg, var(--clr-blue-dark), var(--clr-blue));
+    background: url('escuela.png') center/cover no-repeat;
     position: relative;
     overflow: hidden;
     display: flex;
@@ -375,13 +390,6 @@ ul {
     justify-content: center;
     padding: 4rem;
     color: white;
-}
-
-.glass-shape {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 50%;
 }
 
 .shape-1 {
@@ -467,9 +475,13 @@ ul {
     position: relative; /* needed for absolutely positioned toggle */
 }
 
-.sidebar-header i.ph-graduation-cap {
+.sidebar-header i.ph-graduation-cap,
+.sidebar-header img.sidebar-logo {
     color: var(--clr-blue);
-    font-size: 1.5rem;
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    object-fit: contain;
 }
 
 .sidebar-nav {
@@ -937,8 +949,12 @@ ul {
 /* Dashboard Widgets - Grid Inferior */
 .dashboard-widgets {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     gap: 1.5rem;
+}
+
+.dashboard-widgets > * {
+    min-width: 0;
 }
 
 .widget {
@@ -948,6 +964,7 @@ ul {
     box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .widget-header {
@@ -976,6 +993,7 @@ ul {
 .table-responsive {
     overflow-x: auto;
     flex: 1;
+    min-width: 0;
 }
 
 .data-table {
@@ -1131,7 +1149,7 @@ ul {
    ========================================= */
 @media (max-width: 1024px) {
     .dashboard-widgets {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
@@ -1160,7 +1178,8 @@ ul {
         opacity: 1;
     }
 
-    .main-wrapper {
+    .main-wrapper,
+    .main-wrapper.collapsed {
         margin-left: 0;
         width: 100%;
     }
@@ -1250,8 +1269,11 @@ ul {
     }
 
     .notification-dropdown {
-        width: calc(100vw - 20px);
-        right: -60px;
+        position: fixed;
+        top: var(--topbar-height);
+        left: 8px;
+        right: 8px;
+        width: auto;
         max-height: 70vh;
     }
 
@@ -1546,5 +1568,93 @@ ul {
 @media (max-width: 900px) {
     .cal-manage-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================
+   MEJORAS RESPONSIVE ADICIONALES
+   ========================================= */
+
+/* Imágenes nunca desbordan su contenedor */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Grids de 2 columnas embebidos en las vistas -> 1 columna en móvil */
+@media (max-width: 768px) {
+    [style*="grid-template-columns:1fr 1fr"],
+    [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    .widget-filters {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .page-header h1 {
+        font-size: 1.25rem;
+    }
+
+    .input-group {
+        margin-bottom: 0.75rem;
+    }
+}
+
+/* Dropdown de notificaciones seguro en pantallas pequeñas */
+@media (max-width: 600px) {
+    .notification-dropdown {
+        position: fixed;
+        top: var(--topbar-height);
+        left: 8px;
+        right: 8px;
+        width: auto;
+        max-height: 70vh;
+    }
+}
+
+/* Modales en móvil */
+@media (max-width: 480px) {
+    .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 1rem;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Ajustes finos para pantallas muy pequeñas */
+@media (max-width: 360px) {
+    .topbar {
+        padding: 0 0.5rem;
+    }
+
+    .topbar-left,
+    .topbar-right {
+        gap: 0.5rem;
+    }
+
+    .dashboard-content {
+        padding: 0.75rem;
+    }
+
+    .login-header .logotype-icon {
+        width: 6rem;
+        height: 6rem;
     }
 }

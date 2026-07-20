@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["documento_identidad"]
 <main id="login-view" class="view-container active-view">
     <div class="login-card">
         <div class="login-header">
-            <i class="ph ph-graduation-cap logotype-icon"></i>
+            <img src="css/escudo.png" class="logotype-icon" alt="Escudo">
             <h1>Recuperar Contraseña</h1>
             <p>Ingrese su documento de identidad para generar un enlace de restablecimiento.</p>
         </div>

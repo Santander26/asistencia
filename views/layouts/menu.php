@@ -14,7 +14,7 @@ $adminODirectorOSecretaria = $esAdmin || $esDirector || $esSecretaria;
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <i class="ph-fill ph-graduation-cap"></i>
+        <img src="css/escudo.png" class="sidebar-logo" alt="Escudo">
         <span class="brand-name">SIBCA</span>
         <button id="close-sidebar-btn" class="close-sidebar lg-hidden">
             <i class="ph ph-x"></i>

@@ -111,9 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainWrapper = document.querySelector('.main-wrapper');
 
     if (toggleSidebarDesktopBtn && sidebar && mainWrapper) {
-        // Revisar estado guardado
+        // Revisar estado guardado (solo en escritorio; en móvil el menú es off-canvas)
         const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-        if (sidebarCollapsed) {
+        if (sidebarCollapsed && window.innerWidth > 768) {
             sidebar.classList.add('collapsed');
             mainWrapper.classList.add('collapsed');
             toggleSidebarDesktopBtn.setAttribute('title', 'Mostrar menú');
@@ -138,6 +138,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleSidebarDesktopBtn.setAttribute('title', 'Mostrar menú');
                 toggleSidebarDesktopBtn.querySelector('i').className = 'ph ph-list';
                 localStorage.setItem('sidebarCollapsed', 'true');
+            }
+        });
+
+        // Sincronizar estado colapsado con el viewport para no reservar espacio en móvil
+        window.addEventListener('resize', () => {
+            const collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('collapsed');
+                mainWrapper.classList.remove('collapsed');
+            } else if (collapsed) {
+                sidebar.classList.add('collapsed');
+                mainWrapper.classList.add('collapsed');
+            } else {
+                sidebar.classList.remove('collapsed');
+                mainWrapper.classList.remove('collapsed');
             }
         });
     }
@@ -186,6 +201,25 @@ const modalTriggers = document.querySelectorAll('[data-toggle="modal"]');
 const modals = document.querySelectorAll('.modal');
 const closeButtons = document.querySelectorAll('.close-modal, [data-dismiss="modal"]');
 
+// Compensar el ancho de la scrollbar al bloquear el scroll del body
+// para evitar que el modal (centrado en viewport) se desplace a la derecha.
+// El scroll puede estar en <html> o en <body> (este último cuando body tiene
+// overflow-x:hidden, que convierte a body en el contenedor de scroll).
+function getScrollbarWidth() {
+    let sbw = window.innerWidth - document.documentElement.clientWidth;
+    if (sbw <= 0) sbw = window.innerWidth - document.body.clientWidth;
+    return sbw > 0 ? sbw : 0;
+}
+function lockBodyScroll() {
+    const sbw = getScrollbarWidth();
+    if (sbw > 0) document.body.style.paddingRight = sbw + 'px';
+    document.body.style.overflow = 'hidden';
+}
+function unlockBodyScroll() {
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+}
+
 // Abrir modal
 modalTriggers.forEach(trigger => {
     trigger.addEventListener('click', (e) => {
@@ -194,7 +228,7 @@ modalTriggers.forEach(trigger => {
         const targetModal = document.querySelector(targetId);
         if (targetModal) {
             targetModal.classList.add('show');
-            document.body.style.overflow = 'hidden'; // prevent background scrolling
+            lockBodyScroll(); // prevent background scrolling
         }
     });
 });
@@ -205,7 +239,7 @@ closeButtons.forEach(btn => {
         const modal = btn.closest('.modal');
         if (modal) {
             modal.classList.remove('show');
-            document.body.style.overflow = '';
+            unlockBodyScroll();
         }
     });
 });
@@ -215,7 +249,7 @@ modals.forEach(modal => {
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             modal.classList.remove('show');
-            document.body.style.overflow = '';
+            unlockBodyScroll();
         }
     });
 });

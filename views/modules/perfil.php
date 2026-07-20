@@ -242,11 +242,13 @@ if (empty($avatarSrc)) {
                 <h2>Información del Sistema</h2>
             </div>
             <div style="padding:0 1.5rem 1.5rem;">
+                <div class="table-responsive">
                 <table style="width:100%; font-size:0.9rem;">
                     <tr><td style="padding:4px 8px; color:var(--text-muted);">Cargo</td><td style="padding:4px 8px;"><strong><?php echo htmlspecialchars($usuario['nombre_cargo'] ?? 'No asignado', ENT_QUOTES, 'UTF-8'); ?></strong></td></tr>
                     <tr><td style="padding:4px 8px; color:var(--text-muted);">Turno</td><td style="padding:4px 8px;"><strong><?php echo htmlspecialchars($usuario['nombre_turno'] ?? 'No asignado', ENT_QUOTES, 'UTF-8'); ?></strong></td></tr>
                     <tr><td style="padding:4px 8px; color:var(--text-muted);">Registrado desde</td><td style="padding:4px 8px;"><strong><?php echo htmlspecialchars($usuario['fecha_registro'] ?? '--', ENT_QUOTES, 'UTF-8'); ?></strong></td></tr>
                 </table>
+                </div>
             </div>
         </div>
     </div>

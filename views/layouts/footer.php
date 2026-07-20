@@ -47,7 +47,7 @@
                 ?>
             </p>
 
-            <form method="post">
+            <form method="post" style="max-width: 300px; margin: 0 auto; text-align: left;">
                 <input type="hidden" name="idPerfil" value="<?php echo isset($_SESSION["id"]) ? $_SESSION["id"] : '' ; ?>">
                 <?php require_once "helpers/CsrfHelper.php"; echo CsrfHelper::field(); ?>
                 <div class="input-group" style="text-align: left;">

@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["nueva_password"])) {
 <main id="login-view" class="view-container active-view">
     <div class="login-card">
         <div class="login-header">
-            <i class="ph ph-graduation-cap logotype-icon"></i>
+            <img src="css/escudo.png" class="logotype-icon" alt="Escudo">
             <h1>Nueva Contraseña</h1>
             <p>Ingrese su nueva contraseña para <?php echo htmlspecialchars($reset_user["nombre"] . ' ' . $reset_user["apellido"], ENT_QUOTES, 'UTF-8'); ?></p>
         </div>
