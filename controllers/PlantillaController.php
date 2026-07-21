@@ -111,6 +111,40 @@ class ControladorPlantilla
             RolController::ctrAsignarRol();
             return;
         }
+
+        // API para actualizaciones en tiempo real
+        if (isset($_GET['ruta']) && $_GET['ruta'] === 'api_realtime') {
+            header('Content-Type: application/json; charset=utf-8');
+            if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
+                echo json_encode(["error" => "Sesión expirada"]);
+                return;
+            }
+            require_once "controllers/AsistenciaController.php";
+            $type = $_GET["type"] ?? "dashboard";
+            $result = [];
+            switch ($type) {
+                case "dashboard":
+                    $result = AsistenciaController::ctrApiDashboard();
+                    break;
+                case "reportes":
+                    $fecha_desde = $_GET["fecha_desde"] ?? date('Y-m-01');
+                    $fecha_hasta = $_GET["fecha_hasta"] ?? date('Y-m-d');
+                    $id_cargo = $_GET["id_cargo"] ?? null;
+                    if ($id_cargo === "" || $id_cargo === "0") $id_cargo = null;
+                    $result = AsistenciaController::ctrApiReportes($fecha_desde, $fecha_hasta, $id_cargo);
+                    break;
+                case "personal":
+                    require_once "models/PersonalModel.php";
+                    $result = ["tabla" => PersonalModel::mdlListarPersonal()];
+                    break;
+                case "historial_bajas":
+                    $fecha = $_GET["fecha"] ?? date('Y-m-d');
+                    $result = AsistenciaController::ctrApiHistorialBajas($fecha);
+                    break;
+            }
+            echo json_encode($result);
+            return;
+        }
         if (isset($_GET['ruta']) && $_GET['ruta'] === 'importar_justificaciones') {
             if ($_SERVER["REQUEST_METHOD"] !== "POST") return;
             require_once "helpers/RbacHelper.php";

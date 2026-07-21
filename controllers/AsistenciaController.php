@@ -95,4 +95,68 @@ class AsistenciaController
     {
         return AsistenciaModel::mdlListarTardeHoy();
     }
+
+    static public function ctrApiDashboard()
+    {
+        $fecha = date('Y-m-d');
+        $tabla = "asistencias";
+
+        require_once "models/PersonalModel.php";
+        $totalPersonalActivo = PersonalModel::mdlContarPersonalActivo("personal");
+        $total = $totalPersonalActivo["total"] ?? 0;
+
+        $presentesResp = AsistenciaModel::mdlContarPresentesHoy($tabla, $fecha);
+        $presentes = $presentesResp["total"] ?? 0;
+        $tardeResp = AsistenciaModel::mdlContarTardeHoy();
+        $tarde = $tardeResp["total"] ?? 0;
+        $presentesPuntuales = max(0, $presentes - $tarde);
+        $ausentes = max(0, $total - $presentes);
+        $porcentaje = $total > 0 ? round(($presentes / $total) * 100, 1) : 0;
+        $porcentajeAusencia = $total > 0 ? round(100 - $porcentaje, 1) : 0;
+
+        $estadoHoy = AsistenciaModel::mdlEstadoAsistenciaHoy();
+
+        $chartSemanal = AsistenciaModel::mdlAsistenciaUltimosDias(7);
+        $labels = array();
+        $dataPresentes = array();
+        foreach ($chartSemanal as $f => $d) {
+            $labels[] = date('d/m', strtotime($f));
+            $dataPresentes[] = $d['presentes'];
+        }
+
+        require_once "controllers/JustificacionController.php";
+        $pendientes = JustificacionController::ctrContarPendientes();
+
+        return array(
+            "stats" => array(
+                "total" => $total,
+                "presentes" => $presentes,
+                "ausentes" => $ausentes,
+                "tarde" => $tarde,
+                "porcentaje_asistencia" => $porcentaje,
+                "porcentaje_ausencia" => $porcentajeAusencia,
+                "justificaciones_pendientes" => $pendientes
+            ),
+            "tabla" => $estadoHoy,
+            "chart_semanal" => array("labels" => $labels, "presentes" => $dataPresentes),
+            "chart_hoy" => array(
+                "presentes" => $presentesPuntuales,
+                "tarde" => $tarde,
+                "ausentes" => $ausentes
+            )
+        );
+    }
+
+    static public function ctrApiReportes($fecha_desde, $fecha_hasta, $id_cargo)
+    {
+        return array(
+            "tabla" => AsistenciaModel::mdlListarAsistenciasReporte($fecha_desde, $fecha_hasta, $id_cargo)
+        );
+    }
+
+    static public function ctrApiHistorialBajas($fecha)
+    {
+        require_once "models/HistorialBajaModel.php";
+        return array("tabla" => HistorialBajaModel::mdlListar());
+    }
 }

@@ -116,3 +116,64 @@ $asistencias = AsistenciaController::ctrListarAsistenciasReporte();
     </div>
 </main>
 
+<script>
+(function() {
+    var pollTimer = null;
+    var isPolling = false;
+    var tbody = document.querySelector('#reporte-table tbody');
+
+    function startPolling() {
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = setInterval(fetchReportes, 60000);
+    }
+
+    function fetchReportes() {
+        if (isPolling || !tbody) return;
+        isPolling = true;
+        var params = 'fecha_desde=' + encodeURIComponent('<?php echo $fecha_inicio; ?>') +
+                     '&fecha_hasta=' + encodeURIComponent('<?php echo $fecha_fin; ?>') +
+                     '&id_cargo=' + encodeURIComponent('<?php echo $id_cargo; ?>');
+        fetch('index.php?ruta=api_realtime&type=reportes&' + params + '&_=' + Date.now())
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error || !data.tabla) return;
+                var html = '', i = 1;
+                if (data.tabla.length === 0) {
+                    html = '<tr><td colspan="9" style="text-align:center; padding:2rem;">No hay registros para este periodo.</td></tr>';
+                } else {
+                    for (var j = 0; j < data.tabla.length; j++) {
+                        var a = data.tabla[j];
+                        var nombre = (a.nombre + ' ' + a.apellido).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        var doc = (a.documento_identidad || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        var cargo = (a.nombre_cargo || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        var entrada = a.hora_entrada ? a.hora_entrada.substring(0, 5) : '--:--';
+                        var salida = a.hora_salida ? a.hora_salida.substring(0, 5) : '--:--';
+                        var horas = '--';
+                        if (a.horas_trabajadas) {
+                            var h = Math.floor(a.horas_trabajadas);
+                            var m = Math.round((a.horas_trabajadas - h) * 60);
+                            horas = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+                        }
+                        var estado = a.estado_entrada;
+                        var badge = estado === 'Tarde' ? 'status-warning' : (estado === 'Ausente' ? 'status-red' : 'status-green');
+                        html += '<tr><td>' + (i++) + '</td>' +
+                            '<td>' + nombre + '</td>' +
+                            '<td>' + doc + '</td>' +
+                            '<td>' + cargo + '</td>' +
+                            '<td>' + a.fecha + '</td>' +
+                            '<td>' + entrada + '</td>' +
+                            '<td>' + salida + '</td>' +
+                            '<td>' + horas + '</td>' +
+                            '<td><span class="status-badge ' + badge + '">' + estado + '</span></td></tr>';
+                    }
+                }
+                tbody.innerHTML = html;
+            })
+            .catch(function() {})
+            .finally(function() { isPolling = false; });
+    }
+
+    startPolling();
+})();
+</script>
+

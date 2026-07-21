@@ -69,7 +69,7 @@ $calEscolarJson = json_encode($calEscolar);
             </div>
             <div class="metric-data">
                 <h3>Total Personal</h3>
-                <div class="value">
+                <div class="value" id="metrica-total">
                     <?php echo $totalPersonalActivo; ?>
                 </div>
                 <div class="trend positive"><i class="ph ph-trend-up"></i> Empleados Registrados</div>
@@ -82,10 +82,10 @@ $calEscolarJson = json_encode($calEscolar);
             </div>
             <div class="metric-data">
                 <h3>Presentes Hoy</h3>
-                <div class="value">
+                <div class="value" id="metrica-presentes">
                     <?php echo $presentesHoy; ?>
                 </div>
-                <div class="trend text-green">
+                <div class="trend text-green" id="metrica-porcentaje">
                     <?php echo $porcentajeAsistencia; ?>% de asistencia
                 </div>
             </div>
@@ -97,10 +97,10 @@ $calEscolarJson = json_encode($calEscolar);
             </div>
             <div class="metric-data">
                 <h3>Ausentes Hoy</h3>
-                <div class="value">
+                <div class="value" id="metrica-ausentes">
                     <?php echo $ausentesHoy; ?>
                 </div>
-                <div class="trend text-red">
+                <div class="trend text-red" id="metrica-porcentaje-ausencia">
                     <?php echo round($porcentajeAusencia, 1); ?>% de ausencia
                 </div>
             </div>
@@ -372,18 +372,20 @@ function initCalendar() {
 }
 document.addEventListener('DOMContentLoaded', function() {
     var total = <?php echo $totalPersonalActivo ?: 0; ?>;
-    var presentes = <?php echo $presentesHoy ?: 0; ?>;
+    var presentesTotal = <?php echo $presentesHoy ?: 0; ?>;
     var tarde = <?php echo $tardeHoy ?: 0; ?>;
-    var ausentes = Math.max(0, total - presentes);
+    var presentesPuntual = Math.max(0, presentesTotal - tarde);
+    var ausentes = Math.max(0, total - presentesTotal);
 
+    var chartHoyInstance = null;
     var ctxHoy = document.getElementById('chartHoy');
     if (ctxHoy) {
-        new Chart(ctxHoy, {
+        chartHoyInstance = new Chart(ctxHoy, {
             type: 'doughnut',
             data: {
                 labels: ['Presentes', 'Tarde', 'Ausentes'],
                 datasets: [{
-                    data: [presentes, tarde, ausentes],
+                    data: [presentesPuntual, tarde, ausentes],
                     backgroundColor: ['#4169E1', '#10b981', '#f59e0b'],
                     borderWidth: 0
                 }]
@@ -407,9 +409,10 @@ document.addEventListener('DOMContentLoaded', function() {
         filterDashboard();
     }
 
+    var chartSemanalInstance = null;
     var ctxSemanal = document.getElementById('chartSemanal');
     if (ctxSemanal) {
-        new Chart(ctxSemanal, {
+        chartSemanalInstance = new Chart(ctxSemanal, {
             type: 'bar',
             data: {
                 labels: <?php echo json_encode($chartLabels); ?>,
@@ -438,5 +441,99 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Polling en tiempo real
+    var pollTimer = null;
+    var isPolling = false;
+
+    function startPolling() {
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = setInterval(fetchRealTimeData, 30000);
+    }
+
+    function fetchRealTimeData() {
+        if (isPolling) return;
+        if (document.querySelector('.modal.show, .modal-overlay.show')) return;
+        isPolling = true;
+        fetch('index.php?ruta=api_realtime&type=dashboard&_=' + Date.now())
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.error) { stopPolling(); return; }
+                updateDashboard(data);
+            })
+            .catch(function() {})
+            .finally(function() { isPolling = false; });
+    }
+
+    function stopPolling() {
+        if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    }
+
+    function updateDashboard(data) {
+        var s = data.stats;
+        var el;
+
+        el = document.getElementById('metrica-total');
+        if (el && s.total !== undefined) el.textContent = s.total;
+
+        el = document.getElementById('metrica-presentes');
+        if (el && s.presentes !== undefined) el.textContent = s.presentes;
+
+        el = document.getElementById('metrica-porcentaje');
+        if (el && s.porcentaje_asistencia !== undefined) el.textContent = s.porcentaje_asistencia + '% de asistencia';
+
+        el = document.getElementById('metrica-ausentes');
+        if (el && s.ausentes !== undefined) el.textContent = s.ausentes;
+
+        el = document.getElementById('metrica-porcentaje-ausencia');
+        if (el && s.porcentaje_ausencia !== undefined) el.textContent = s.porcentaje_ausencia + '% de ausencia';
+
+        // Actualizar tabla
+        var tbody = document.querySelector('#tabla-tiempo-real tbody');
+        if (tbody && data.tabla) {
+            var html = '';
+            if (data.tabla.length === 0) {
+                html = '<tr><td colspan="4" style="text-align:center; padding:2rem;">No hay empleados activos registrados.</td></tr>';
+            } else {
+                for (var i = 0; i < data.tabla.length; i++) {
+                    var e = data.tabla[i];
+                    var avatarSrc = e.foto ? 'foto_perfil/' + e.foto : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(e.nombre + '+' + e.apellido) + '&background=random';
+                    var esAusente = !e.hora_entrada;
+                    var estado = esAusente ? 'Ausente' : (e.estado_entrada || 'Presente');
+                    var badge = estado === 'Tarde' ? 'status-warning' : (estado === 'Ausente' ? 'status-red' : 'status-green');
+                    var hora = esAusente ? '--:--' : e.hora_entrada.substring(0, 5);
+                    var cargo = e.nombre_cargo || '';
+                    var nombre = (e.nombre + ' ' + e.apellido).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    var cargoSafe = cargo.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                    html += '<tr data-estado="' + estado + '">' +
+                        '<td><div class="student-cell"><img src="' + avatarSrc + '" alt="" class="avatar-sm"><span>' + nombre + '</span></div></td>' +
+                        '<td>' + cargoSafe + '</td>' +
+                        '<td>' + hora + '</td>' +
+                        '<td><span class="status-badge ' + badge + '">' + estado + '</span></td>' +
+                        '</tr>';
+                }
+            }
+            tbody.innerHTML = html;
+            filterDashboard();
+        }
+
+        // Actualizar charts
+        if (chartHoyInstance && data.chart_hoy) {
+            chartHoyInstance.data.datasets[0].data = [
+                data.chart_hoy.presentes,
+                data.chart_hoy.tarde,
+                data.chart_hoy.ausentes
+            ];
+            chartHoyInstance.update();
+        }
+        if (chartSemanalInstance && data.chart_semanal) {
+            chartSemanalInstance.data.labels = data.chart_semanal.labels;
+            chartSemanalInstance.data.datasets[0].data = data.chart_semanal.presentes;
+            chartSemanalInstance.update();
+        }
+    }
+
+    startPolling();
 });
 </script>
