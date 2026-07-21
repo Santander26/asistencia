@@ -73,25 +73,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- 3. Funcionalidad del Sidebar (Mobile) ---
+    // --- 3. Sidebar (Mobile: off-canvas con texto | Desktop: toggle collapsed) ---
     const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
     const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
     const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+    const mainWrapper = document.querySelector('.main-wrapper');
 
+    // Mobile: mostrar/ocultar sidebar siempre con texto completo
     function showSidebar() {
         sidebar.classList.remove('collapsed');
         sidebar.classList.add('show-sidebar');
-        if (sidebarOverlay && window.innerWidth <= 768) sidebarOverlay.classList.add('show');
     }
 
     function hideSidebar() {
         sidebar.classList.remove('show-sidebar');
-        if (sidebarOverlay) sidebarOverlay.classList.remove('show');
+    }
+
+    // Desktop: alternar entre completo y solo iconos
+    function toggleCollapsed() {
+        if (sidebar.classList.contains('collapsed')) {
+            sidebar.classList.remove('collapsed');
+            if (mainWrapper) mainWrapper.classList.remove('collapsed');
+            localStorage.setItem('sidebarCollapsed', 'false');
+        } else {
+            sidebar.classList.add('collapsed');
+            if (mainWrapper) mainWrapper.classList.add('collapsed');
+            localStorage.setItem('sidebarCollapsed', 'true');
+        }
     }
 
     if (toggleSidebarBtn && sidebar) {
-        toggleSidebarBtn.addEventListener('click', showSidebar);
+        toggleSidebarBtn.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.contains('show-sidebar') ? hideSidebar() : showSidebar();
+            } else {
+                toggleCollapsed();
+            }
+        });
     }
 
     if (closeSidebarBtn && sidebar) {
@@ -99,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Cerrar sidebar al hacer clic fuera en móvil
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', function(e) {
         if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('show-sidebar')) {
             if (!sidebar.contains(e.target) && !toggleSidebarBtn.contains(e.target)) {
                 hideSidebar();
@@ -107,14 +125,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 3.5. El sidebar siempre se muestra completo ---
-    const mainWrapper = document.querySelector('.main-wrapper');
-    if (sidebar && mainWrapper) {
-        // Siempre mostrar el menú expandido, sin colapsar
-        sidebar.classList.remove('collapsed');
-        if (mainWrapper) mainWrapper.classList.remove('collapsed');
-        localStorage.setItem('sidebarCollapsed', 'false');
+    // Restaurar estado collapsed desde localStorage en desktop
+    if (mainWrapper && localStorage.getItem('sidebarCollapsed') === 'true' && window.innerWidth > 768) {
+        sidebar.classList.add('collapsed');
+        mainWrapper.classList.add('collapsed');
     }
+
+    // Sincronizar collapsed al redimensionar
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.remove('collapsed');
+            if (mainWrapper) mainWrapper.classList.remove('collapsed');
+        } else if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            sidebar.classList.add('collapsed');
+            if (mainWrapper) mainWrapper.classList.add('collapsed');
+        }
+    });
 
 
     // --- 4. Configurar Fecha Actual ---
