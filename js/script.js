@@ -122,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         toggleSidebarDesktopBtn.addEventListener('click', () => {
+            if (window.innerWidth <= 768) return;
             const isCollapsed = sidebar.classList.contains('collapsed');
             
             if (isCollapsed) {

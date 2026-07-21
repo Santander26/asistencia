@@ -200,7 +200,7 @@ $calEscolarJson = json_encode($calEscolar);
                 </table>
             </div>
             <div class="widget-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
-                <div id="pagination-dashboard" style="display:flex; gap:0.25rem; align-items:center;"></div>
+                <div id="pagination-dashboard" class="pagination-controls" style="display:flex; gap:0.25rem; align-items:center;"></div>
                 <a href="index.php?ruta=reportes" class="view-all">Ver reporte completo <i class="ph ph-arrow-right"></i></a>
             </div>
         </div>
