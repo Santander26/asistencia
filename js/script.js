@@ -80,8 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeSidebarBtn = document.getElementById('close-sidebar-btn');
 
     function showSidebar() {
+        sidebar.classList.remove('collapsed');
         sidebar.classList.add('show-sidebar');
-        if (sidebarOverlay) sidebarOverlay.classList.add('show');
+        if (sidebarOverlay && window.innerWidth <= 768) sidebarOverlay.classList.add('show');
     }
 
     function hideSidebar() {
@@ -106,56 +107,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 3.5. Toggle Sidebar Desktop ---
-    const toggleSidebarDesktopBtn = document.getElementById('toggle-sidebar-btn');
+    // --- 3.5. El sidebar siempre se muestra completo ---
     const mainWrapper = document.querySelector('.main-wrapper');
-
-    if (toggleSidebarDesktopBtn && sidebar && mainWrapper) {
-        // Revisar estado guardado (solo en escritorio; en móvil el menú es off-canvas)
-        const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-        if (sidebarCollapsed && window.innerWidth > 768) {
-            sidebar.classList.add('collapsed');
-            mainWrapper.classList.add('collapsed');
-            toggleSidebarDesktopBtn.setAttribute('title', 'Mostrar menú');
-            // keep the same icon
-            toggleSidebarDesktopBtn.querySelector('i').className = 'ph ph-list';
-        }
-
-        toggleSidebarDesktopBtn.addEventListener('click', () => {
-            if (window.innerWidth <= 768) return;
-            const isCollapsed = sidebar.classList.contains('collapsed');
-            
-            if (isCollapsed) {
-                // Expandir
-                sidebar.classList.remove('collapsed');
-                mainWrapper.classList.remove('collapsed');
-                toggleSidebarDesktopBtn.setAttribute('title', 'Ocultar menú');
-                toggleSidebarDesktopBtn.querySelector('i').className = 'ph ph-list';
-                localStorage.setItem('sidebarCollapsed', 'false');
-            } else {
-                // Colapsar
-                sidebar.classList.add('collapsed');
-                mainWrapper.classList.add('collapsed');
-                toggleSidebarDesktopBtn.setAttribute('title', 'Mostrar menú');
-                toggleSidebarDesktopBtn.querySelector('i').className = 'ph ph-list';
-                localStorage.setItem('sidebarCollapsed', 'true');
-            }
-        });
-
-        // Sincronizar estado colapsado con el viewport para no reservar espacio en móvil
-        window.addEventListener('resize', () => {
-            const collapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            if (window.innerWidth <= 768) {
-                sidebar.classList.remove('collapsed');
-                mainWrapper.classList.remove('collapsed');
-            } else if (collapsed) {
-                sidebar.classList.add('collapsed');
-                mainWrapper.classList.add('collapsed');
-            } else {
-                sidebar.classList.remove('collapsed');
-                mainWrapper.classList.remove('collapsed');
-            }
-        });
+    if (sidebar && mainWrapper) {
+        // Siempre mostrar el menú expandido, sin colapsar
+        sidebar.classList.remove('collapsed');
+        if (mainWrapper) mainWrapper.classList.remove('collapsed');
+        localStorage.setItem('sidebarCollapsed', 'false');
     }
 
 

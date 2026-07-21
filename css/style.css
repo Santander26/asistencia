@@ -448,6 +448,12 @@ img.logotype-icon {
     opacity: 1;
 }
 
+@media (min-width: 769px) {
+    .sidebar-overlay.show {
+        display: none;
+    }
+}
+
 .sidebar {
     width: var(--sidebar-width);
     background-color: var(--bg-surface);
