@@ -123,8 +123,8 @@ $calEscolarJson = json_encode($calEscolar);
         </a>
     </div>
 
-    <!-- Estado de lectores de huella -->
-    <?php
+    <!-- Estado de lectores de huella (solo admin) -->
+    <?php if (isset($_SESSION["id_rol"]) && $_SESSION["id_rol"] === 4):
     try {
         $pdo = Conexion::conectar();
         $stmt = $pdo->query("SELECT id, nombre, ubicacion, ultimo_heartbeat FROM dispositivos_huella ORDER BY id");
@@ -163,6 +163,7 @@ $calEscolarJson = json_encode($calEscolar);
             <?php endforeach; ?>
         </div>
     </div>
+    <?php endif; ?>
     <?php endif; ?>
 
     <!-- Sección Inferior del Dashboard -->

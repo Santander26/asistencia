@@ -127,18 +127,20 @@ class AsistenciaController
         require_once "controllers/JustificacionController.php";
         $pendientes = JustificacionController::ctrContarPendientes();
 
-        // Estado de lectores de huella
+        // Estado de lectores de huella (solo admin)
         $dispositivos = array();
-        try {
-            $stmt = Conexion::conectar()->query("SELECT id, nombre, ubicacion, ultimo_heartbeat FROM dispositivos_huella ORDER BY id");
-            while ($d = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $ultimo = $d["ultimo_heartbeat"];
-                $segundos = $ultimo ? (time() - strtotime($ultimo)) : 9999;
-                $d["online"] = $segundos < 120;
-                $d["ultimo_heartbeat"] = $ultimo ? date('Y-m-d H:i:s', strtotime($ultimo)) : null;
-                $dispositivos[] = $d;
-            }
-        } catch (Exception $e) {}
+        if (isset($_SESSION["id_rol"]) && $_SESSION["id_rol"] === 4) {
+            try {
+                $stmt = Conexion::conectar()->query("SELECT id, nombre, ubicacion, ultimo_heartbeat FROM dispositivos_huella ORDER BY id");
+                while ($d = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $ultimo = $d["ultimo_heartbeat"];
+                    $segundos = $ultimo ? (time() - strtotime($ultimo)) : 9999;
+                    $d["online"] = $segundos < 120;
+                    $d["ultimo_heartbeat"] = $ultimo ? date('Y-m-d H:i:s', strtotime($ultimo)) : null;
+                    $dispositivos[] = $d;
+                }
+            } catch (Exception $e) {}
+        }
 
         return array(
             "stats" => array(
