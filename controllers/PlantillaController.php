@@ -187,6 +187,9 @@ class ControladorPlantilla
                     }
                     HuellaController::ctrSyncOffline();
                     break;
+                case 'heartbeat':
+                    HuellaController::ctrHeartbeat();
+                    break;
             }
             return;
         }

@@ -138,4 +138,23 @@ class HuellaController
 
         echo json_encode(["success" => true, "procesados" => $procesados, "errores" => $errores]);
     }
+
+    static public function ctrHeartbeat()
+    {
+        $device_id = intval($_GET["device_id"] ?? 1);
+        $pdo = Conexion::conectar();
+
+        // Verificar si el device existe, si no, crearlo
+        $stmt = $pdo->prepare("SELECT id FROM dispositivos_huella WHERE id = ?");
+        $stmt->execute([$device_id]);
+        if (!$stmt->fetch()) {
+            $stmt = $pdo->prepare("INSERT INTO dispositivos_huella (id, nombre) VALUES (?, CONCAT('Lector #', ?))");
+            $stmt->execute([$device_id, $device_id]);
+        }
+
+        $stmt = $pdo->prepare("UPDATE dispositivos_huella SET ultimo_heartbeat = NOW() WHERE id = ?");
+        $stmt->execute([$device_id]);
+
+        echo json_encode(["success" => true, "device_id" => $device_id, "server_time" => date('Y-m-d H:i:s')]);
+    }
 }

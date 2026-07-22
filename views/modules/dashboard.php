@@ -123,6 +123,48 @@ $calEscolarJson = json_encode($calEscolar);
         </a>
     </div>
 
+    <!-- Estado de lectores de huella -->
+    <?php
+    try {
+        $pdo = Conexion::conectar();
+        $stmt = $pdo->query("SELECT id, nombre, ubicacion, ultimo_heartbeat FROM dispositivos_huella ORDER BY id");
+        $dispositivos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        $dispositivos = [];
+    }
+    ?>
+    <?php if (!empty($dispositivos)): ?>
+    <div class="widget device-status" style="grid-column: 1 / -1;">
+        <div class="widget-header">
+            <h2>Estado de Lectores de Huella</h2>
+        </div>
+        <div class="widget-content" id="device-status-container" style="padding:1rem; display:flex; gap:1.5rem; flex-wrap:wrap;">
+            <?php foreach ($dispositivos as $d):
+                $ultimo = $d["ultimo_heartbeat"];
+                $segundos = $ultimo ? (time() - strtotime($ultimo)) : 9999;
+                $online = $segundos < 120;
+                $clase = $online ? 'status-green' : 'status-red';
+                $texto = $online ? 'En línea' : 'Desconectado';
+                $icono = $online ? 'ph-wifi-high' : 'ph-wifi-slash';
+                $ultimoTexto = $ultimo ? 'Último ping: ' . date('d/m H:i:s', strtotime($ultimo)) : 'Sin conexión registrada';
+            ?>
+            <div class="metric-card" style="min-width:200px; flex:1;">
+                <div class="metric-icon <?php echo $online ? 'bg-green-light' : 'bg-red-light'; ?>">
+                    <i class="ph <?php echo $icono; ?> <?php echo $online ? 'text-green' : 'text-red'; ?>"></i>
+                </div>
+                <div class="metric-data">
+                    <h3><?php echo htmlspecialchars($d["nombre"], ENT_QUOTES, 'UTF-8'); ?></h3>
+                    <div style="display:flex; align-items:center; gap:0.375rem;">
+                        <span class="status-badge <?php echo $clase; ?>"><?php echo $texto; ?></span>
+                    </div>
+                    <div class="trend" style="font-size:0.75rem; margin-top:0.25rem;"><?php echo $ultimoTexto; ?></div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Sección Inferior del Dashboard -->
     <div class="dashboard-widgets">
 
@@ -531,6 +573,38 @@ document.addEventListener('DOMContentLoaded', function() {
             chartSemanalInstance.data.labels = data.chart_semanal.labels;
             chartSemanalInstance.data.datasets[0].data = data.chart_semanal.presentes;
             chartSemanalInstance.update();
+        }
+
+        // Actualizar estado de lectores de huella
+        if (data.dispositivos && data.dispositivos.length > 0) {
+            var deviceContainer = document.getElementById('device-status-container');
+            if (!deviceContainer) {
+                var section = document.querySelector('.device-status .widget-content');
+                if (section) section.id = 'device-status-container';
+                deviceContainer = document.getElementById('device-status-container');
+            }
+            if (!deviceContainer) return;
+            var html = '';
+            for (var j = 0; j < data.dispositivos.length; j++) {
+                var d = data.dispositivos[j];
+                var online = d.online;
+                var clase = online ? 'status-green' : 'status-red';
+                var texto = online ? 'En l\u00ednea' : 'Desconectado';
+                var icono = online ? 'ph-wifi-high' : 'ph-wifi-slash';
+                var bg = online ? 'bg-green-light' : 'bg-red-light';
+                var color = online ? 'text-green' : 'text-red';
+                var ultimo = d.ultimo_heartbeat ? '\u00daltimo ping: ' + d.ultimo_heartbeat.replace(' ', ' / ') : 'Sin conexi\u00f3n registrada';
+                html += '<div class="metric-card" style="min-width:200px; flex:1;">' +
+                    '<div class="metric-icon ' + bg + '">' +
+                    '<i class="ph ' + icono + ' ' + color + '"></i></div>' +
+                    '<div class="metric-data">' +
+                    '<h3>' + (d.nombre || 'Lector #' + d.id) + '</h3>' +
+                    '<div style="display:flex; align-items:center; gap:0.375rem;">' +
+                    '<span class="status-badge ' + clase + '">' + texto + '</span></div>' +
+                    '<div class="trend" style="font-size:0.75rem; margin-top:0.25rem;">' + ultimo + '</div>' +
+                    '</div></div>';
+            }
+            deviceContainer.innerHTML = html;
         }
     }
 
