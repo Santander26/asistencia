@@ -158,6 +158,39 @@ class ControladorPlantilla
             return;
         }
 
+        // API para enrolamiento y sincronización de huellas (ESP32)
+        if (isset($_GET['ruta']) && strpos($_GET['ruta'], 'api_huella_') === 0) {
+            header('Content-Type: application/json; charset=utf-8');
+            require_once "controllers/HuellaController.php";
+            $action = str_replace('api_huella_', '', $_GET['ruta']);
+            switch ($action) {
+                case 'solicitar':
+                    HuellaController::ctrSolicitarEnrolamiento();
+                    break;
+                case 'consultar':
+                    HuellaController::ctrConsultarEnrolamiento();
+                    break;
+                case 'confirmar':
+                    if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+                        echo json_encode(["success" => false, "mensaje" => "Método no permitido"]);
+                        return;
+                    }
+                    HuellaController::ctrConfirmarEnrolamiento();
+                    break;
+                case 'mapeo':
+                    HuellaController::ctrObtenerMapeo();
+                    break;
+                case 'sync':
+                    if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+                        echo json_encode(["success" => false, "mensaje" => "Método no permitido"]);
+                        return;
+                    }
+                    HuellaController::ctrSyncOffline();
+                    break;
+            }
+            return;
+        }
+
         if (isset($_GET['ruta']) && $_GET['ruta'] === 'importar_justificaciones') {
             if ($_SERVER["REQUEST_METHOD"] !== "POST") return;
             require_once "helpers/RbacHelper.php";

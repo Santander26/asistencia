@@ -91,6 +91,12 @@
                                 <button class="btn-icon" title="Cargar foto de perfil" data-toggle="modal" data-target="#modalSubirFoto" data-id="' . $value["id"] . '" data-nombre="' . $value["nombre"] . ' ' . $value["apellido"] . '">
                                     <i class="ph ph-camera text-green"></i>
                                 </button>
+                                <button class="btn-icon btn-registrar-huella" title="' . (!empty($value["sdk_huella"]) ? 'Huella registrada - Volver a enrolar' : 'Registrar huella') . '"
+                                        data-id="' . $value["id"] . '"
+                                        data-documento="' . $value["documento_identidad"] . '"
+                                        data-nombre="' . $value["nombre"] . ' ' . $value["apellido"] . '">
+                                    <i class="ph ' . (!empty($value["sdk_huella"]) ? 'ph-fingerprint text-purple' : 'ph-fingerprint') . '"></i>
+                                </button>
                                 <button class="btn-icon" title="' . $toggleTitle . '" onclick="confirmarInactivacion(' . $value["id"] . ',' . $value["id_estado"] . ')">
                                     <i class="ph ' . $toggleIcon . '"></i>
                                 </button>
@@ -801,5 +807,29 @@ document.querySelectorAll('[data-target="#modalSubirFoto"]').forEach(function(bt
             }, 60);
         }
     }
+
+    // Boton registrar huella
+    document.querySelectorAll('.btn-registrar-huella').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.getAttribute('data-id');
+            var nombre = this.getAttribute('data-nombre');
+            if (!confirm('Solicitar enrolamiento de huella para: ' + nombre + '?\n\nPon el lector en modo enrolamiento y coloca el dedo 2 veces.')) return;
+            var self = this;
+            var formData = new FormData();
+            formData.append('id_personal', id);
+            fetch('index.php?ruta=api_huella_solicitar', { method: 'POST', body: formData })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        alert('Solicitud enviada. Coloca el dedo en el lector.');
+                        // Recargar para ver el icono actualizado
+                        setTimeout(function() { location.reload(); }, 5000);
+                    } else {
+                        alert('Error: ' + data.mensaje);
+                    }
+                })
+                .catch(function() { alert('Error de conexion'); });
+        });
+    });
 });
 </script>
