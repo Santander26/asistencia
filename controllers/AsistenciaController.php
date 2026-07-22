@@ -159,4 +159,51 @@ class AsistenciaController
         require_once "models/HistorialBajaModel.php";
         return array("tabla" => HistorialBajaModel::mdlListar());
     }
+
+    // Endpoint para marcación por huella desde ESP32
+    static public function ctrMarcarPorHuella()
+    {
+        $documento = trim($_POST["documento"] ?? "");
+        if (empty($documento)) {
+            return ["success" => false, "mensaje" => "Documento requerido"];
+        }
+
+        require_once "models/UsuarioModel.php";
+        require_once "models/TurnoModel.php";
+        require_once "helpers/AuditoriaHelper.php";
+
+        $personal = UsuarioModel::mdlMostrarUsuario("personal", "documento_identidad", $documento);
+        if (!$personal || $personal["id_estado"] != 1) {
+            return ["success" => false, "mensaje" => "Empleado no encontrado o inactivo"];
+        }
+
+        $horaActual = date('H:i:s');
+        $estadoEntrada = 'Presente';
+        $turno = TurnoModel::mdlMostrarTurno("horarios_turnos", "id", $personal["id_turno"]);
+        if ($turno) {
+            $horaEntradaOficial = strtotime($turno["hora_entrada"]);
+            $horaRegistro = strtotime($horaActual);
+            $limiteTolerancia = $horaEntradaOficial + 900;
+            if ($horaRegistro > $limiteTolerancia) $estadoEntrada = "Tarde";
+        }
+
+        $resultado = AsistenciaModel::mdlRegistrarMarcacion($personal["id"], $estadoEntrada);
+
+        AuditoriaHelper::log(
+            $resultado['tipo'] == 'salida' ? 'marcar_salida' : 'marcar_entrada',
+            'asistencia',
+            $personal["id"],
+            $personal["nombre"] . ' ' . $personal["apellido"] . ' - ' . $resultado['tipo'] . ' (huella) a las ' . $horaActual
+        );
+
+        return [
+            "success" => true,
+            "nombre" => $personal["nombre"],
+            "apellido" => $personal["apellido"],
+            "estado" => $estadoEntrada,
+            "tipo" => $resultado['tipo'],
+            "mensaje" => $resultado['mensaje'],
+            "hora" => $horaActual
+        ];
+    }
 }

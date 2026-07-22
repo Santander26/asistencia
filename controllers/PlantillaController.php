@@ -145,6 +145,19 @@ class ControladorPlantilla
             echo json_encode($result);
             return;
         }
+
+        // API pública para marcación por huella (ESP32)
+        if (isset($_GET['ruta']) && $_GET['ruta'] === 'api_marcar_huella') {
+            header('Content-Type: application/json; charset=utf-8');
+            if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+                echo json_encode(["success" => false, "mensaje" => "Método no permitido"]);
+                return;
+            }
+            require_once "controllers/AsistenciaController.php";
+            echo json_encode(AsistenciaController::ctrMarcarPorHuella());
+            return;
+        }
+
         if (isset($_GET['ruta']) && $_GET['ruta'] === 'importar_justificaciones') {
             if ($_SERVER["REQUEST_METHOD"] !== "POST") return;
             require_once "helpers/RbacHelper.php";
