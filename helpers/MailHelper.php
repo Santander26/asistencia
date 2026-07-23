@@ -22,6 +22,7 @@ class MailHelper
             'from_email'    => $json['from_email'] ?? getenv('MAIL_FROM') ?: '',
             'from_name'     => $json['from_name'] ?? getenv('MAIL_FROM_NAME') ?: 'SIBCA - Sistema de Asistencia',
             'brevo_api_key' => $json['brevo_api_key'] ?? getenv('BREVO_API_KEY') ?: '',
+            'resend_api_key'=> $json['resend_api_key'] ?? getenv('RESEND_API_KEY') ?: '',
         ];
     }
 
@@ -35,12 +36,50 @@ class MailHelper
     {
         $config = self::getConfig();
 
-        // Si hay API key de Brevo, usar API HTTP (puerto 443, no bloqueado)
+        // Si hay API key de Resend, usar API HTTP (prioridad 1)
+        if (!empty($config['resend_api_key'])) {
+            return self::enviarPorResend($config, $para, $nombre, $asunto, $cuerpoHtml);
+        }
+
+        // Si hay API key de Brevo, usar API HTTP (prioridad 2)
         if (!empty($config['brevo_api_key'])) {
             return self::enviarPorBrevo($config, $para, $nombre, $asunto, $cuerpoHtml);
         }
 
         return self::enviarPorSMTP($config, $para, $nombre, $asunto, $cuerpoHtml);
+    }
+
+    static private function enviarPorResend($config, $para, $nombre, $asunto, $cuerpoHtml)
+    {
+        $data = json_encode([
+            'from'    => $config['from_name'] . ' <' . $config['from_email'] . '>',
+            'to'      => [$para],
+            'subject' => $asunto,
+            'html'    => $cuerpoHtml,
+        ]);
+
+        $ch = curl_init('https://api.resend.com/emails');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $data,
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: Bearer ' . $config['resend_api_key'],
+                'Content-Type: application/json',
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 15,
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return true;
+        }
+
+        error_log("Resend API error: HTTP $httpCode - $response");
+        return false;
     }
 
     static private function enviarPorBrevo($config, $para, $nombre, $asunto, $cuerpoHtml)
