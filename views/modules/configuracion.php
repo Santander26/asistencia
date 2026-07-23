@@ -24,6 +24,7 @@ require_once "helpers/CsrfHelper.php";
                 'smtp_secure'   => $_POST["smtp_secure"],
                 'smtp_username' => $_POST["smtp_username"],
                 'smtp_password' => $_POST["smtp_password"],
+                'brevo_api_key' => $_POST["brevo_api_key"] ?? '',
                 'from_email'    => $_POST["from_email"],
                 'from_name'     => $_POST["from_name"],
             ]);
@@ -103,6 +104,13 @@ require_once "helpers/CsrfHelper.php";
                             <div class="input-wrapper">
                                 <i class="ph ph-lock"></i>
                                 <input type="password" name="smtp_password" value="<?php echo htmlspecialchars($smtp_config['smtp_password'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                            </div>
+                        </div>
+                        <div class="input-group" style="grid-column: 1 / -1;">
+                            <label>Brevo API Key <span style="font-size:0.75rem;color:var(--clr-green);font-weight:normal;">(Alternativa sin SMTP - usa HTTPS puerto 443)</span></label>
+                            <div class="input-wrapper">
+                                <i class="ph ph-key"></i>
+                                <input type="password" name="brevo_api_key" placeholder="xkeysib-..." value="<?php echo htmlspecialchars($smtp_config['brevo_api_key'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                         </div>
                         <div class="input-group">

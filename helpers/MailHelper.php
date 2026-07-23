@@ -19,8 +19,9 @@ class MailHelper
             'smtp_auth'     => true,
             'smtp_username' => $json['smtp_username'] ?? getenv('SMTP_USER') ?: '',
             'smtp_password' => $json['smtp_password'] ?? getenv('SMTP_PASS') ?: '',
-            'from_email'    => $json['from_email'] ?? getenv('MAIL_FROM') ?: 'noreply@sibca.edu',
+            'from_email'    => $json['from_email'] ?? getenv('MAIL_FROM') ?: '',
             'from_name'     => $json['from_name'] ?? getenv('MAIL_FROM_NAME') ?: 'SIBCA - Sistema de Asistencia',
+            'brevo_api_key' => $json['brevo_api_key'] ?? getenv('BREVO_API_KEY') ?: '',
         ];
     }
 
@@ -34,6 +35,55 @@ class MailHelper
     {
         $config = self::getConfig();
 
+        // Si hay API key de Brevo, usar API HTTP (puerto 443, no bloqueado)
+        if (!empty($config['brevo_api_key'])) {
+            return self::enviarPorBrevo($config, $para, $nombre, $asunto, $cuerpoHtml);
+        }
+
+        return self::enviarPorSMTP($config, $para, $nombre, $asunto, $cuerpoHtml);
+    }
+
+    static private function enviarPorBrevo($config, $para, $nombre, $asunto, $cuerpoHtml)
+    {
+        $data = json_encode([
+            'sender' => [
+                'name'  => $config['from_name'],
+                'email' => $config['from_email'],
+            ],
+            'to' => [[
+                'email' => $para,
+                'name'  => $nombre,
+            ]],
+            'subject'     => $asunto,
+            'htmlContent' => $cuerpoHtml,
+        ]);
+
+        $ch = curl_init('https://api.brevo.com/v3/smtp/email');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $data,
+            CURLOPT_HTTPHEADER     => [
+                'api-key: ' . $config['brevo_api_key'],
+                'Content-Type: application/json',
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 15,
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return true;
+        }
+
+        error_log("Brevo API error: HTTP $httpCode - $response");
+        return false;
+    }
+
+    static private function enviarPorSMTP($config, $para, $nombre, $asunto, $cuerpoHtml)
+    {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
 
         try {
