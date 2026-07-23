@@ -305,6 +305,55 @@ $backup->ctrCrearBackup();
             </div>
         </div>
 
+        <!-- Lista de Backups -->
+        <div class="widget">
+            <div class="widget-header">
+                <h2 style="display: flex; align-items: center; gap: 10px;">
+                    <i class="ph ph-folder-open text-yellow" style="font-size: 1.5rem;"></i>
+                    Backups Disponibles
+                </h2>
+            </div>
+            <div class="widget-content">
+                <?php
+                $backupDir = $_SERVER["DOCUMENT_ROOT"] . "/backups/";
+                $archivos = glob($backupDir . "*.sql");
+                if (empty($archivos)):
+                ?>
+                <p style="color: var(--clr-text-muted);">No hay backups disponibles. Genera uno primero.</p>
+                <?php else: ?>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Archivo</th>
+                            <th>Tamaño</th>
+                            <th>Fecha</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($archivos as $archivo):
+                            $nombre = basename($archivo);
+                            $tamano = filesize($archivo);
+                            $fecha = date("d/m/Y H:i:s", filemtime($archivo));
+                            $tamanoStr = $tamano > 1048576 ? round($tamano/1048576,1)." MB" : round($tamano/1024,1)." KB";
+                        ?>
+                        <tr>
+                            <td><i class="ph ph-file-sql" style="margin-right:6px;"></i><?php echo htmlspecialchars($nombre); ?></td>
+                            <td><?php echo $tamanoStr; ?></td>
+                            <td><?php echo $fecha; ?></td>
+                            <td>
+                                <a href="index.php?ruta=descargar_backup&archivo=<?php echo urlencode($nombre); ?>" class="btn btn-sm btn-outline" style="color:var(--clr-blue);border-color:var(--clr-blue);">
+                                    <i class="ph ph-download-simple"></i> Descargar
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php endif; ?>
+            </div>
+        </div>
+
         <!-- Panel de Restauración -->
         <div class="widget">
             <div class="widget-header">

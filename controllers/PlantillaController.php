@@ -158,6 +158,30 @@ class ControladorPlantilla
             return;
         }
 
+        // Descarga de archivos de backup
+        if (isset($_GET['ruta']) && $_GET['ruta'] === 'descargar_backup') {
+            if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok") {
+                header('Location: index.php?ruta=login');
+                exit;
+            }
+            require_once "helpers/RbacHelper.php";
+            if (!RbacHelper::soloAdmin()) {
+                header('Location: index.php?ruta=inicio');
+                exit;
+            }
+            $archivo = $_GET["archivo"] ?? "";
+            $ruta = $_SERVER["DOCUMENT_ROOT"] . "/backups/" . basename($archivo);
+            if (file_exists($ruta) && pathinfo($ruta, PATHINFO_EXTENSION) === 'sql') {
+                header("Content-Type: application/octet-stream");
+                header("Content-Disposition: attachment; filename=\"" . basename($archivo) . "\"");
+                header("Content-Length: " . filesize($ruta));
+                readfile($ruta);
+                exit;
+            }
+            header('Location: index.php?ruta=configuracion');
+            return;
+        }
+
         // API para enrolamiento y sincronización de huellas (ESP32)
         if (isset($_GET['ruta']) && strpos($_GET['ruta'], 'api_huella_') === 0) {
             header('Content-Type: application/json; charset=utf-8');
