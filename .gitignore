@@ -22,6 +22,10 @@ desktop.ini
 cookies_*.txt
 headers.txt
 
+# Backups y exportaciones locales
+backups/*.sql
+backups_reportes/
+
 # Composer (if used)
 vendor/
 node_modules/
