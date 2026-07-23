@@ -34,7 +34,7 @@ class ConfiguracionController
             $mysqldumpPath = $rutas['mysqldump'];
 
             $passOption = ($db['pass'] == "") ? "" : "-p" . escapeshellarg($db['pass']);
-            $comando = "$mysqldumpPath -h " . escapeshellarg($db['host']) . " -u " . escapeshellarg($db['user']) . " $passOption " . escapeshellarg($db['name']) . " > " . escapeshellarg($rutaArchivo);
+            $comando = "$mysqldumpPath -h " . escapeshellarg($db['host']) . " -u " . escapeshellarg($db['user']) . " $passOption --ssl=0 --single-transaction --routines --triggers " . escapeshellarg($db['name']) . " > " . escapeshellarg($rutaArchivo);
 
             $salida = null;
             $codigoSalida = null;
@@ -88,7 +88,7 @@ class ConfiguracionController
                 $mysqlPath = $rutas['mysql'];
 
                 $passOption = ($db['pass'] == "") ? "" : "-p" . escapeshellarg($db['pass']);
-                $comando = "$mysqlPath -h " . escapeshellarg($db['host']) . " -u " . escapeshellarg($db['user']) . " $passOption " . escapeshellarg($db['name']) . " < " . escapeshellarg($archivoSubido);
+                $comando = "$mysqlPath -h " . escapeshellarg($db['host']) . " -u " . escapeshellarg($db['user']) . " $passOption --ssl=0 " . escapeshellarg($db['name']) . " < " . escapeshellarg($archivoSubido);
 
                 $salida = null;
                 $codigoSalida = null;

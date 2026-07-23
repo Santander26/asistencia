@@ -245,6 +245,7 @@ class ControladorPlantilla
             $path = "$dir/$filename";
 
             if ($formato === "pdf") {
+                $oldLevel = error_reporting(error_reporting() & ~E_DEPRECATED);
                 $pdf = new PDF('L', 'mm', 'A4');
                 $pdf->AliasNbPages();
                 $pdf->SetMargins(8, 8, 8);
@@ -283,6 +284,7 @@ class ControladorPlantilla
                 header("Content-Type: application/pdf");
                 header("Content-Disposition: attachment; filename=\"$filename\"");
                 readfile($path);
+                error_reporting($oldLevel);
                 exit;
             } else if ($formato === "csv") {
                 $fp = fopen($path, "w");
